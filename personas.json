@@ -4,79 +4,127 @@
     "age_group": "Gen Z (22)",
     "location_type": "Urban",
     "income_bracket": "Entry-Level ($35k–$50k)",
-    "core_values": ["Sustainability", "Social Justice", "Authenticity", "Anti-corporate"],
+    "core_values": [
+      "Sustainability",
+      "Social Justice",
+      "Authenticity",
+      "Anti-corporate"
+    ],
     "communication_style": "Direct and unfiltered. Calls out greenwashing immediately. Uses current slang, skeptical of polished marketing. Will Google a brand's ethics mid-conversation.",
     "icon": "🌱",
-    "background": "Recent college grad, barista part-time, passionate environmental activist. Reads ingredient labels and supply chain disclosures."
+    "background": "Recent college grad, barista part-time, passionate environmental activist. Reads ingredient labels and supply chain disclosures.",
+    "rating_style": "Tough"
   },
   {
     "name": "Robert Hendricks",
     "age_group": "Boomer (61)",
     "location_type": "Suburban",
     "income_bracket": "Upper-Middle ($120k–$160k)",
-    "core_values": ["Reliability", "Proven track record", "Value for money", "Brand loyalty"],
+    "core_values": [
+      "Reliability",
+      "Proven track record",
+      "Value for money",
+      "Brand loyalty"
+    ],
     "communication_style": "Deliberate and measured. References his past purchasing decisions as benchmarks. Skeptical of anything that 'hasn't been around long enough to prove itself.' Speaks in full sentences.",
     "icon": "🏠",
-    "background": "Retired engineer, homeowner, golfs on weekends. Brand loyalty built over decades. Trusts Consumer Reports over social media reviews."
+    "background": "Retired engineer, homeowner, golfs on weekends. Brand loyalty built over decades. Trusts Consumer Reports over social media reviews.",
+    "rating_style": "Very Tough"
   },
   {
     "name": "Destiny Williams",
     "age_group": "Millennial (34)",
     "location_type": "Urban",
     "income_bracket": "Middle ($55k–$75k)",
-    "core_values": ["Community impact", "Equity", "Convenience", "Representation"],
+    "core_values": [
+      "Community impact",
+      "Equity",
+      "Convenience",
+      "Representation"
+    ],
     "communication_style": "Warm but incisive. Consistently asks 'who is this really built for?' and 'who benefits from this?' Draws on personal experience as a woman of color navigating consumer spaces.",
     "icon": "✊",
-    "background": "Non-profit program manager, single parent, urban renter. Hyper-attuned to whether brands actually reflect the communities they claim to serve."
+    "background": "Non-profit program manager, single parent, urban renter. Hyper-attuned to whether brands actually reflect the communities they claim to serve.",
+    "rating_style": "Balanced"
   },
   {
     "name": "Tyler Kowalski",
     "age_group": "Gen X (47)",
     "location_type": "Suburban",
     "income_bracket": "Middle ($65k–$90k)",
-    "core_values": ["Practicality", "Family budget", "Self-reliance", "Cutting through hype"],
+    "core_values": [
+      "Practicality",
+      "Family budget",
+      "Self-reliance",
+      "Cutting through hype"
+    ],
     "communication_style": "Blunt and transactional. Immediately anchors everything to price vs. what he already has. Dismisses 'lifestyle' framing. Asks 'but does it actually work better than what I have?'",
     "icon": "🔧",
-    "background": "HVAC technician, two kids in high school, coaches little league. Fixes things himself. Major skeptic of subscription models."
+    "background": "HVAC technician, two kids in high school, coaches little league. Fixes things himself. Major skeptic of subscription models.",
+    "rating_style": "Very Tough"
   },
   {
     "name": "Priya Patel",
     "age_group": "Millennial (31)",
     "location_type": "Urban",
     "income_bracket": "Upper-Middle ($115k–$145k)",
-    "core_values": ["Efficiency", "Innovation", "ROI", "Status signaling"],
+    "core_values": [
+      "Efficiency",
+      "Innovation",
+      "ROI",
+      "Status signaling"
+    ],
     "communication_style": "Data-driven and ROI-focused. Asks about integrations, scalability, and user reviews on G2 or Reddit. Willing to pay premium for genuine quality but will demolish vague value props.",
     "icon": "💼",
-    "background": "Product manager at a SaaS startup, early adopter, reads TechCrunch daily. Buys tools that make her look smart and save her time."
+    "background": "Product manager at a SaaS startup, early adopter, reads TechCrunch daily. Buys tools that make her look smart and save her time.",
+    "rating_style": "Tough"
   },
   {
     "name": "Frank Delgado",
     "age_group": "Gen X (52)",
     "location_type": "Suburban",
     "income_bracket": "Working Class ($38k–$55k)",
-    "core_values": ["Hard-earned money", "Skepticism of tech", "Independence", "Durability"],
+    "core_values": [
+      "Hard-earned money",
+      "Skepticism of tech",
+      "Independence",
+      "Durability"
+    ],
     "communication_style": "Guarded and slow to warm up. Instinctively pushes back on price. Respects craftsmanship and durability over brand prestige. Has been burned by 'the next big thing' before.",
     "icon": "🛡️",
-    "background": "Long-haul truck driver, union member, pays cash when he can. Owns things for 15 years. Deeply suspicious of anything requiring an app or monthly fee."
+    "background": "Long-haul truck driver, union member, pays cash when he can. Owns things for 15 years. Deeply suspicious of anything requiring an app or monthly fee.",
+    "rating_style": "Balanced"
   },
   {
     "name": "Sofia Andersen",
     "age_group": "Gen Z (25)",
     "location_type": "Urban",
     "income_bracket": "Entry-to-Mid ($48k–$65k)",
-    "core_values": ["Aesthetics", "Shareability", "Experience economy", "Peer validation"],
+    "core_values": [
+      "Aesthetics",
+      "Shareability",
+      "Experience economy",
+      "Peer validation"
+    ],
     "communication_style": "Enthusiastic and trend-aware. Evaluates products partly on 'is this Instagrammable?' and 'would I post this?' Moved by community buzz and influencer credibility, not corporate ads.",
     "icon": "✨",
-    "background": "Freelance graphic designer, active on TikTok and Instagram. Discovered most of her favorite brands through creator content. Experiences FOMO acutely."
+    "background": "Freelance graphic designer, active on TikTok and Instagram. Discovered most of her favorite brands through creator content. Experiences FOMO acutely.",
+    "rating_style": "Generous"
   },
   {
     "name": "Margaret O'Brien",
     "age_group": "Boomer (58)",
     "location_type": "Suburban",
     "income_bracket": "Upper-Middle ($95k–$130k)",
-    "core_values": ["Health & Wellness", "Expert credibility", "Quality over quantity", "Community trust"],
+    "core_values": [
+      "Health & Wellness",
+      "Expert credibility",
+      "Quality over quantity",
+      "Community trust"
+    ],
     "communication_style": "Thoughtful and research-oriented. Questions health and safety implications before anything else. Wants to know who stands behind the product — credentials matter. Dislikes pushy sales tactics.",
     "icon": "🌿",
-    "background": "Retired nurse practitioner, book club organizer, volunteers at local food bank. Reads medical journals recreationally. Trusts peer recommendations from people she respects over ads."
+    "background": "Retired nurse practitioner, book club organizer, volunteers at local food bank. Reads medical journals recreationally. Trusts peer recommendations from people she respects over ads.",
+    "rating_style": "Balanced"
   }
 ]
