@@ -58,6 +58,8 @@ def inject_css():
     section[data-testid="stSidebar"] {
         background: #28282b !important;
         border-right: 1px solid #3c3c3f;
+        display: block !important;
+        visibility: visible !important;
     }
     section[data-testid="stSidebar"] label,
     section[data-testid="stSidebar"] p,
@@ -67,6 +69,10 @@ def inject_css():
     }
     section[data-testid="stSidebar"] .stMarkdown h3 {
         color: #e8eaed !important;
+    }
+    /* Hide the collapse arrow inside sidebar — sidebar stays permanently open */
+    [data-testid="stSidebarHeader"] {
+        display: none !important;
     }
 
     /* ── Top nav bar ── */
@@ -470,11 +476,29 @@ def inject_css():
     /* ── Divider ── */
     hr { border-color: #3c3c3f !important; }
 
-    /* ── Hide Streamlit chrome (safe — never touches sidebar toggle) ── */
+    /* ── Hide Streamlit chrome ── */
     #MainMenu { visibility: hidden; }
     footer { visibility: hidden; }
     [data-testid="stDeployButton"] { display: none !important; }
-    [data-testid="stToolbar"] { display: none !important; }
+    [data-testid="stStatusWidget"] { display: none !important; }
+
+    /* ── Sidebar expand button (fallback for auto-collapse on narrow screens) ── */
+    [data-testid="collapsedControl"] {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        position: fixed !important;
+        top: 70px !important;
+        left: 0 !important;
+        z-index: 999999 !important;
+        background: #1a73e8 !important;
+        border: none !important;
+        border-radius: 0 6px 6px 0 !important;
+        padding: 10px 8px !important;
+        color: #ffffff !important;
+        cursor: pointer !important;
+    }
 
     /* ── Scrollbar ── */
     ::-webkit-scrollbar { width: 6px; }
