@@ -470,11 +470,11 @@ def inject_css():
     /* ── Divider ── */
     hr { border-color: #3c3c3f !important; }
 
-    /* ── Hide Streamlit chrome (keep sidebar toggle visible) ── */
+    /* ── Hide Streamlit chrome (safe — never touches sidebar toggle) ── */
     #MainMenu { visibility: hidden; }
     footer { visibility: hidden; }
-    header { visibility: hidden; }
-    [data-testid="collapsedControl"] { visibility: visible !important; }
+    [data-testid="stDeployButton"] { display: none !important; }
+    [data-testid="stToolbar"] { display: none !important; }
 
     /* ── Scrollbar ── */
     ::-webkit-scrollbar { width: 6px; }
