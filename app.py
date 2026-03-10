@@ -5,7 +5,7 @@ import os
 from openai import OpenAI
 
 # ─────────────────────────────────────────────
-# CONFIG
+# PAGE CONFIG
 # ─────────────────────────────────────────────
 st.set_page_config(
     page_title="SimGroupAI",
@@ -36,271 +36,447 @@ PRIORITIES = [
 ]
 
 # ─────────────────────────────────────────────
-# CSS
+# CSS — Dark GA-inspired
 # ─────────────────────────────────────────────
 def inject_css():
     st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap');
 
     html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Roboto', sans-serif;
+        font-size: 14px;
     }
 
+    /* ── Base ── */
     .stApp {
-        background: #0a1628;
-        color: #e8edf5;
+        background: #1c1c1e;
+        color: #e8eaed;
     }
 
+    /* ── Sidebar ── */
     section[data-testid="stSidebar"] {
-        background: #0f1e35 !important;
-        border-right: 1px solid #1e3a5f;
+        background: #28282b !important;
+        border-right: 1px solid #3c3c3f;
     }
-    section[data-testid="stSidebar"] * {
-        color: #c8d6e8 !important;
+    section[data-testid="stSidebar"] label,
+    section[data-testid="stSidebar"] p,
+    section[data-testid="stSidebar"] span,
+    section[data-testid="stSidebar"] div {
+        color: #bdc1c6 !important;
     }
-
-    .simgroup-header {
-        background: linear-gradient(135deg, #0d2040 0%, #162038 100%);
-        border-bottom: 2px solid #1e4d7b;
-        padding: 20px 32px 16px;
-        margin: -1rem -1rem 2rem -1rem;
-    }
-    .simgroup-logo {
-        font-size: 1.7rem;
-        font-weight: 700;
-        color: #4ecdc4;
-        letter-spacing: -0.5px;
-    }
-    .simgroup-tagline {
-        font-size: 0.82rem;
-        color: #7a9bbf;
-        margin-top: 2px;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
+    section[data-testid="stSidebar"] .stMarkdown h3 {
+        color: #e8eaed !important;
     }
 
-    .summary-bar {
-        background: #0f1e35;
-        border: 1px solid #1e3a5f;
-        border-radius: 10px;
-        padding: 16px 24px;
-        margin-bottom: 24px;
+    /* ── Top nav bar ── */
+    .ga-topbar {
+        background: #28282b;
+        border-bottom: 1px solid #3c3c3f;
+        padding: 0 24px;
+        margin: -1rem -1rem 28px -1rem;
         display: flex;
         align-items: center;
-        gap: 32px;
+        height: 56px;
+        gap: 16px;
+    }
+    .ga-logo {
+        font-family: 'Google Sans', 'Roboto', sans-serif;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #e8eaed;
+        letter-spacing: -0.2px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .ga-logo-dot {
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        background: #1a73e8;
+        display: inline-block;
+    }
+    .ga-property {
+        font-size: 0.78rem;
+        color: #9aa0a6;
+        border-left: 1px solid #3c3c3f;
+        padding-left: 14px;
+        letter-spacing: 0.2px;
+    }
+
+    /* ── Cards ── */
+    .ga-card {
+        background: #28282b;
+        border: 1px solid #3c3c3f;
+        border-radius: 8px;
+        padding: 20px 24px;
+        margin-bottom: 16px;
+    }
+    .ga-card-title {
+        font-size: 0.72rem;
+        font-weight: 500;
+        color: #9aa0a6;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .ga-metric-value {
+        font-size: 2.4rem;
+        font-weight: 400;
+        color: #e8eaed;
+        line-height: 1;
+        font-family: 'Google Sans', 'Roboto', sans-serif;
+    }
+    .ga-metric-sub {
+        font-size: 0.78rem;
+        color: #9aa0a6;
+        margin-top: 6px;
+    }
+
+    /* ── Summary scorecard row ── */
+    .ga-scorecard-row {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 24px;
         flex-wrap: wrap;
     }
-    .summary-metric {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        min-width: 90px;
+    .ga-scorecard {
+        background: #28282b;
+        border: 1px solid #3c3c3f;
+        border-radius: 8px;
+        padding: 16px 20px;
+        flex: 1;
+        min-width: 140px;
     }
-    .summary-metric-value {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: #4ecdc4;
-        line-height: 1.1;
-    }
-    .summary-metric-label {
-        font-size: 0.7rem;
-        color: #7a9bbf;
-        text-transform: uppercase;
-        letter-spacing: 0.6px;
-        margin-top: 2px;
-    }
-    .summary-badge {
-        background: #162038;
-        border: 1px solid #4ecdc4;
-        border-radius: 20px;
-        padding: 6px 16px;
-        font-size: 0.82rem;
-        color: #4ecdc4;
-        font-weight: 600;
-        letter-spacing: 0.3px;
-    }
-    .summary-divider {
-        width: 1px;
-        height: 40px;
-        background: #1e3a5f;
-    }
-
-    .metric-card {
-        background: #0f1e35;
-        border: 1px solid #1e3a5f;
-        border-radius: 10px;
-        padding: 20px;
-        margin-bottom: 12px;
-    }
-    .metric-card-label {
+    .ga-scorecard-label {
         font-size: 0.72rem;
-        color: #7a9bbf;
+        color: #9aa0a6;
         text-transform: uppercase;
-        letter-spacing: 0.6px;
+        letter-spacing: 0.7px;
         margin-bottom: 6px;
     }
-    .metric-card-value {
+    .ga-scorecard-value {
         font-size: 2rem;
-        font-weight: 700;
-        color: #4ecdc4;
+        font-weight: 400;
+        color: #e8eaed;
+        font-family: 'Google Sans', 'Roboto', sans-serif;
         line-height: 1;
     }
-    .metric-card-sub {
-        font-size: 0.78rem;
-        color: #5a7a9a;
+    .ga-scorecard-delta {
+        font-size: 0.75rem;
         margin-top: 4px;
     }
+    .delta-green { color: #34a853; }
+    .delta-yellow { color: #fbbc04; }
+    .delta-red { color: #ea4335; }
 
-    .progress-container {
-        background: #162038;
-        border-radius: 4px;
-        height: 6px;
-        margin-top: 8px;
+    /* ── Progress bars ── */
+    .ga-bar-row {
+        margin-bottom: 10px;
+    }
+    .ga-bar-label-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.78rem;
+        color: #bdc1c6;
+        margin-bottom: 4px;
+    }
+    .ga-bar-track {
+        background: #3c3c3f;
+        border-radius: 3px;
+        height: 5px;
         overflow: hidden;
     }
-    .progress-fill {
+    .ga-bar-fill {
         height: 100%;
-        border-radius: 4px;
-        background: linear-gradient(90deg, #4ecdc4, #45b7d1);
+        border-radius: 3px;
+        background: #1a73e8;
     }
-    .progress-fill-warn {
-        height: 100%;
-        border-radius: 4px;
-        background: linear-gradient(90deg, #f7971e, #ffd200);
+    .ga-bar-fill-warn {
+        background: #fbbc04;
     }
-    .progress-fill-danger {
-        height: 100%;
-        border-radius: 4px;
-        background: linear-gradient(90deg, #f44336, #e91e63);
+    .ga-bar-fill-danger {
+        background: #ea4335;
+    }
+    .ga-bar-fill-green {
+        background: #34a853;
     }
 
-    .chat-bubble {
-        padding: 12px 16px;
+    /* ── Table-like rows (findings) ── */
+    .ga-finding-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 8px 0;
+        border-bottom: 1px solid #3c3c3f;
+        font-size: 0.84rem;
+        color: #bdc1c6;
+        line-height: 1.45;
+    }
+    .ga-finding-row:last-child { border-bottom: none; }
+    .ga-finding-dot {
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        margin-top: 6px;
+        flex-shrink: 0;
+    }
+    .dot-red { background: #ea4335; }
+    .dot-green { background: #34a853; }
+    .dot-yellow { background: #fbbc04; }
+
+    /* ── Chip / badge ── */
+    .ga-chip {
+        display: inline-flex;
+        align-items: center;
+        background: #35363a;
+        border: 1px solid #5f6368;
+        border-radius: 16px;
+        padding: 3px 10px;
+        font-size: 0.72rem;
+        color: #bdc1c6;
+        margin: 2px;
+        gap: 4px;
+    }
+    .ga-chip-blue {
+        background: #1a3a5c;
+        border-color: #1a73e8;
+        color: #8ab4f8;
+    }
+    .ga-chip-green {
+        background: #1e3a2a;
+        border-color: #34a853;
+        color: #81c995;
+    }
+    .ga-chip-red {
+        background: #3a1e1e;
+        border-color: #ea4335;
+        color: #f28b82;
+    }
+    .ga-chip-yellow {
+        background: #3a3010;
+        border-color: #fbbc04;
+        color: #fdd663;
+    }
+
+    /* ── Verdict badge ── */
+    .verdict-badge {
+        display: inline-block;
+        border-radius: 4px;
+        padding: 4px 12px;
+        font-size: 0.78rem;
+        font-weight: 500;
+        letter-spacing: 0.2px;
+    }
+    .verdict-green { background: #1e3a2a; color: #81c995; border: 1px solid #34a853; }
+    .verdict-yellow { background: #3a3010; color: #fdd663; border: 1px solid #fbbc04; }
+    .verdict-orange { background: #3a2810; color: #ffb74d; border: 1px solid #f57c00; }
+    .verdict-red { background: #3a1e1e; color: #f28b82; border: 1px solid #ea4335; }
+
+    /* ── Honesty badge ── */
+    .honesty-chip {
+        font-size: 0.68rem;
+        padding: 2px 7px;
         border-radius: 10px;
-        margin: 6px 0;
-        font-size: 0.92rem;
+        font-weight: 500;
+        margin-left: 6px;
+        vertical-align: middle;
+    }
+    .hc-high { background: #1e3a2a; color: #81c995; }
+    .hc-mid  { background: #3a3010; color: #fdd663; }
+    .hc-low  { background: #3a1e1e; color: #f28b82; }
+
+    /* ── Transcript bubbles ── */
+    .tx-bubble {
+        padding: 10px 14px;
+        border-radius: 6px;
+        margin: 5px 0;
+        background: #28282b;
+        border: 1px solid #3c3c3f;
+        font-size: 0.87rem;
         line-height: 1.55;
-        border-left: 3px solid #4ecdc4;
-        background: #0f1e35;
-        color: #d0dff0;
+        color: #bdc1c6;
     }
-    .chat-bubble-user {
-        border-left-color: #f7971e;
-        background: #141e2e;
-    }
-    .chat-name {
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: #4ecdc4;
+    .tx-bubble:hover { border-color: #5f6368; }
+    .tx-name {
+        font-size: 0.72rem;
+        font-weight: 500;
+        color: #8ab4f8;
         margin-bottom: 4px;
         text-transform: uppercase;
-        letter-spacing: 0.4px;
+        letter-spacing: 0.5px;
     }
-    .chat-name-user {
-        color: #f7971e;
+    .tx-bubble-user {
+        background: #1a2535;
+        border-color: #1a73e8;
     }
-
-    .honesty-badge {
-        display: inline-block;
-        font-size: 0.7rem;
-        padding: 2px 8px;
-        border-radius: 10px;
-        font-weight: 600;
-        margin-left: 8px;
-    }
-    .honesty-high { background: #1a3a2a; color: #4ecdc4; }
-    .honesty-mid  { background: #2a2a1a; color: #f7c948; }
-    .honesty-low  { background: #3a1a1a; color: #f77a48; }
-
-    .tag {
-        display: inline-block;
-        background: #162038;
-        border: 1px solid #1e3a5f;
-        border-radius: 14px;
-        padding: 3px 10px;
-        font-size: 0.75rem;
-        color: #7a9bbf;
-        margin: 2px;
+    .tx-name-user {
+        color: #fbbc04;
     }
 
-    .section-header {
-        font-size: 0.72rem;
-        font-weight: 600;
-        color: #7a9bbf;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin: 20px 0 10px 0;
-        padding-bottom: 6px;
-        border-bottom: 1px solid #1e3a5f;
-    }
-
-    .stButton > button {
-        background: linear-gradient(135deg, #4ecdc4, #45b7d1) !important;
-        color: #0a1628 !important;
-        font-weight: 700 !important;
-        border: none !important;
-        border-radius: 8px !important;
-        padding: 10px 24px !important;
-        font-size: 0.9rem !important;
-        letter-spacing: 0.3px !important;
-    }
-
-    .stTextArea textarea, .stTextInput input {
-        background: #0f1e35 !important;
-        border: 1px solid #1e3a5f !important;
-        color: #e8edf5 !important;
-        border-radius: 8px !important;
-    }
-
-    .stTabs [data-baseweb="tab-list"] {
-        background: #0f1e35;
-        border-radius: 8px;
-        padding: 4px;
-        gap: 4px;
-        border: 1px solid #1e3a5f;
-    }
-    .stTabs [data-baseweb="tab"] {
-        background: transparent;
-        color: #7a9bbf !important;
+    /* ── Next step cards ── */
+    .ns-card {
+        background: #28282b;
+        border: 1px solid #3c3c3f;
+        border-left: 3px solid #1a73e8;
         border-radius: 6px;
-        font-weight: 500;
-    }
-    .stTabs [aria-selected="true"] {
-        background: #162038 !important;
-        color: #4ecdc4 !important;
-    }
-
-    .streamlit-expanderHeader {
-        background: #0f1e35 !important;
-        border: 1px solid #1e3a5f !important;
-        border-radius: 8px !important;
-        color: #c8d6e8 !important;
-    }
-
-    #MainMenu, footer, header { visibility: hidden; }
-
-    hr { border-color: #1e3a5f !important; }
-
-    .next-step-card {
-        background: #0f1e35;
-        border: 1px solid #1e4d7b;
-        border-left: 4px solid #4ecdc4;
-        border-radius: 8px;
         padding: 14px 18px;
         margin-bottom: 10px;
     }
-    .next-step-title {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #4ecdc4;
+    .ns-title {
+        font-size: 0.84rem;
+        font-weight: 500;
+        color: #8ab4f8;
         margin-bottom: 4px;
     }
-    .next-step-body {
-        font-size: 0.82rem;
-        color: #a0b8d0;
+    .ns-body {
+        font-size: 0.81rem;
+        color: #9aa0a6;
         line-height: 1.5;
     }
+    .ns-profile {
+        font-size: 0.73rem;
+        color: #5f6368;
+        margin-top: 5px;
+    }
+
+    /* ── Section headers ── */
+    .ga-section-title {
+        font-size: 0.72rem;
+        font-weight: 500;
+        color: #9aa0a6;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin: 24px 0 12px 0;
+        padding-bottom: 6px;
+        border-bottom: 1px solid #3c3c3f;
+    }
+
+    /* ── Tabs ── */
+    .stTabs [data-baseweb="tab-list"] {
+        background: #28282b;
+        border-radius: 6px;
+        padding: 3px;
+        gap: 2px;
+        border: 1px solid #3c3c3f;
+    }
+    .stTabs [data-baseweb="tab"] {
+        background: transparent;
+        color: #9aa0a6 !important;
+        border-radius: 4px;
+        font-size: 0.84rem;
+        font-weight: 500;
+        padding: 6px 16px;
+    }
+    .stTabs [aria-selected="true"] {
+        background: #35363a !important;
+        color: #e8eaed !important;
+    }
+
+    /* ── Inputs ── */
+    .stTextArea textarea,
+    .stTextInput input {
+        background: #28282b !important;
+        border: 1px solid #3c3c3f !important;
+        color: #e8eaed !important;
+        border-radius: 6px !important;
+        font-size: 0.87rem !important;
+    }
+    .stTextArea textarea:focus,
+    .stTextInput input:focus {
+        border-color: #1a73e8 !important;
+        box-shadow: 0 0 0 2px rgba(26,115,232,0.2) !important;
+    }
+
+    /* ── Primary button ── */
+    .stButton > button[kind="primary"],
+    .stButton > button {
+        background: #1a73e8 !important;
+        color: #ffffff !important;
+        font-weight: 500 !important;
+        border: none !important;
+        border-radius: 4px !important;
+        padding: 8px 22px !important;
+        font-size: 0.87rem !important;
+        letter-spacing: 0.2px !important;
+        font-family: 'Roboto', sans-serif !important;
+    }
+    .stButton > button:hover {
+        background: #1557b0 !important;
+    }
+
+    /* ── Expander ── */
+    .streamlit-expanderHeader {
+        background: #28282b !important;
+        border: 1px solid #3c3c3f !important;
+        border-radius: 6px !important;
+        color: #bdc1c6 !important;
+        font-size: 0.84rem !important;
+    }
+
+    /* ── Progress spinner ── */
+    .stProgress > div > div {
+        background-color: #1a73e8 !important;
+    }
+
+    /* ── Checkbox ── */
+    .stCheckbox label span {
+        font-size: 0.84rem !important;
+    }
+
+    /* ── Radio ── */
+    .stRadio label span {
+        font-size: 0.84rem !important;
+    }
+
+    /* ── Tooltip help icon ── */
+    .ga-help {
+        display: inline-block;
+        width: 14px; height: 14px;
+        background: #3c3c3f;
+        color: #9aa0a6;
+        border-radius: 50%;
+        font-size: 0.65rem;
+        text-align: center;
+        line-height: 14px;
+        cursor: default;
+        margin-left: 4px;
+        vertical-align: middle;
+        font-weight: 700;
+    }
+
+    /* ── Phase 2 info box ── */
+    .p2-info {
+        background: #1a2535;
+        border: 1px solid #1a73e8;
+        border-radius: 6px;
+        padding: 12px 16px;
+        font-size: 0.82rem;
+        color: #8ab4f8;
+        margin-bottom: 20px;
+        line-height: 1.5;
+    }
+
+    /* ── Export button row ── */
+    .export-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    /* ── Divider ── */
+    hr { border-color: #3c3c3f !important; }
+
+    /* ── Hide Streamlit chrome ── */
+    #MainMenu, footer, header { visibility: hidden; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #1c1c1e; }
+    ::-webkit-scrollbar-thumb { background: #3c3c3f; border-radius: 3px; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -326,6 +502,7 @@ def init_session_state():
         "selected_priorities": [],
         "raw_transcript": "",
         "insights_text": "",
+        "active_tab": 0,
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -353,22 +530,12 @@ def get_client():
 # LLM CALLS
 # ─────────────────────────────────────────────
 def generate_custom_panel(client, description):
-    prompt = f"""You are a consumer research expert. Create exactly 4 diverse consumer personas tailored to this target market:
+    prompt = f"""You are a consumer research expert. Create exactly 4 diverse consumer personas for this target market: "{description}"
 
-"{description}"
+Return ONLY a JSON object with key "personas" containing an array of 4 objects, each with:
+- name, age_group, location_type, income_bracket, core_values (array), communication_style, icon (emoji), background, rating_style (Very Tough/Tough/Balanced/Generous)
 
-Return ONLY valid JSON — a single JSON object with key "personas" containing an array of 4 objects. Each object must have:
-- name (string)
-- age_group (string, e.g. "Millennial (32)")
-- location_type (string: Urban / Suburban / Rural)
-- income_bracket (string, e.g. "Middle ($60k-$80k)")
-- core_values (array of 3-4 strings)
-- communication_style (string, 2-3 sentences)
-- icon (single emoji)
-- background (string, 1-2 sentence bio)
-- rating_style (one of: "Very Tough", "Tough", "Balanced", "Generous")
-
-Make them genuinely diverse in age, background, income, and values."""
+Make them diverse in age, income, background, and values."""
 
     resp = client.chat.completions.create(
         model="gpt-4o",
@@ -376,8 +543,7 @@ Make them genuinely diverse in age, background, income, and values."""
         response_format={"type": "json_object"},
         temperature=0.9,
     )
-    raw = resp.choices[0].message.content.strip()
-    parsed = json.loads(raw)
+    parsed = json.loads(resp.choices[0].message.content.strip())
     if isinstance(parsed, list):
         return parsed
     for v in parsed.values():
@@ -393,35 +559,32 @@ def generate_simulation(client, pitch, personas, priorities):
         f"{p['communication_style']} Rating style: {p.get('rating_style','Balanced')}."
         for p in personas
     ])
-
-    system = f"""You are simulating a realistic, unscripted consumer focus group with {len(personas)} distinct participants.
+    system = f"""Simulate a realistic, unscripted consumer focus group with {len(personas)} participants.
 
 PARTICIPANTS:
 {persona_block}
 
-SIMULATION RULES:
-1. Generate exactly 30-35 total exchanges. Each exchange = one participant speaking.
-2. NO moderator. Participants speak freely and react to each other naturally.
-3. MANDATORY: At least 2 participants must openly disagree with another participant.
-4. MANDATORY: At least 2 participants must express genuine skepticism or a concern.
+RULES:
+1. Generate exactly 30-35 total exchanges. Each = one participant speaking.
+2. NO moderator. Participants speak freely and react to each other.
+3. MANDATORY: At least 2 participants openly disagree with another.
+4. MANDATORY: At least 2 express genuine skepticism or concern.
 5. MANDATORY: Each participant speaks at least 4 times.
-6. "Very Tough" and "Tough" rating style personas are harder to please and more critical.
-7. "Generous" rating style personas are more open and enthusiastic.
-8. Keep each response 2-4 sentences. No speeches.
-9. The group naturally explores: {priority_str}
-10. Reflect each persona's background and values in what they focus on.
-11. NO groupthink. The conversation should be contentious at times.
+6. Very Tough/Tough personas are harder to please. Generous personas are more open.
+7. 2-4 sentences per response. No speeches.
+8. Naturally explore: {priority_str}
+9. Reflect each persona's background in what they focus on.
+10. NO groupthink.
 
-FORMAT — use exactly this for every line:
+FORMAT (every line):
 [NAME]: [message]
 
-Start immediately with the first participant. No intro text."""
-
-    user = f"PRODUCT/SERVICE PITCH:\n{pitch}\n\nBegin the focus group discussion now."
+Start immediately. No intro text."""
 
     resp = client.chat.completions.create(
         model="gpt-4o",
-        messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
+        messages=[{"role": "system", "content": system},
+                  {"role": "user", "content": f"PITCH:\n{pitch}\n\nBegin the discussion."}],
         temperature=0.85,
         max_tokens=3500,
     )
@@ -430,23 +593,16 @@ Start immediately with the first participant. No intro text."""
 
 def generate_insights(client, pitch, transcript, personas, priorities):
     priority_str = ", ".join(priorities) if priorities else "overall consumer value"
-    persona_names = [p["name"] for p in personas]
-
-    system = "You are a senior consumer insights analyst. Return structured data in the EXACT format specified. No extra commentary."
-
+    names = [p["name"] for p in personas]
+    system = "You are a senior consumer insights analyst. Return structured data in the EXACT format. No commentary."
     user = f"""PITCH: {pitch}
-
 TRANSCRIPT:
 {transcript}
-
 PRIORITY DIMENSIONS: {priority_str}
+PERSONAS: {json.dumps([{"name": p["name"], "rating_style": p.get("rating_style","Balanced")} for p in personas])}
 
-PERSONAS:
-{json.dumps([{"name": p["name"], "rating_style": p.get("rating_style","Balanced")} for p in personas], indent=2)}
-
-Return in this EXACT format:
-
-ADOPTION_SCORE: [0-100 integer]
+EXACT FORMAT:
+ADOPTION_SCORE: [0-100]
 SENTIMENT_BREAKDOWN: [Positive X% / Neutral X% / Negative X%]
 TOP_PAIN_POINTS:
 - [pain point 1]
@@ -462,145 +618,120 @@ KEY_OBJECTIONS:
 PRIORITY_SCORES:
 {chr(10).join([f"- {p}: [0-100]" for p in (priorities if priorities else ["Overall Value"])])}
 PERSONA_HONESTY:
-{chr(10).join([f"- {name}: [0-100 integer]" for name in persona_names])}
+{chr(10).join([f"- {n}: [0-100]" for n in names])}
 OVERALL_VERDICT: [1-2 sentence summary]"""
 
     resp = client.chat.completions.create(
         model="gpt-4o",
         messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
-        temperature=0.3,
-        max_tokens=1200,
+        temperature=0.3, max_tokens=1200,
     )
     return resp.choices[0].message.content.strip()
 
 
 def check_authenticity(client, pitch, transcript):
-    system = "You are a focus group quality auditor. Return data in the EXACT format specified."
-
+    system = "You are a focus group quality auditor. Return EXACT format only."
     user = f"""PITCH: {pitch}
-
 TRANSCRIPT:
 {transcript}
 
 AUTHENTICITY_SCORE: [0-100]
 GROUPTHINK_DETECTED: [Yes/No]
-GROUPTHINK_NOTES: [brief note or "None"]
+GROUPTHINK_NOTES: [brief or "None"]
 OUTLIER_VOICES:
 - [name or "None"]
 CORPORATE_SYCOPHANCY_RISK: [Low/Medium/High]
-FILTER_VERDICT: [1-2 sentences on transcript quality]"""
+FILTER_VERDICT: [1-2 sentences]"""
 
     resp = client.chat.completions.create(
         model="gpt-4o",
         messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
-        temperature=0.2,
-        max_tokens=500,
+        temperature=0.2, max_tokens=500,
     )
     return resp.choices[0].message.content.strip()
 
 
 def generate_focus_guide(client, pitch, transcript, insights_text):
-    system = "You are a qualitative research consultant. Write a practical focus group guide based on AI simulation findings."
-
+    system = "You are a qualitative research consultant. Write a practical human focus group guide."
     user = f"""PITCH: {pitch}
-
-AI SIMULATION INSIGHTS:
-{insights_text}
-
-KEY THEMES FROM TRANSCRIPT:
-{transcript[:2000]}
+INSIGHTS: {insights_text}
+TRANSCRIPT EXCERPT: {transcript[:2000]}
 
 Write a Human Focus Group Guide with:
-1. RESEARCH OBJECTIVES (3 bullet points)
+1. RESEARCH OBJECTIVES (3 points)
 2. SCREENING CRITERIA (4-5 criteria)
-3. WARM-UP QUESTIONS (2 questions)
-4. CORE DISCUSSION QUESTIONS (5-6 questions based on unresolved tensions)
-5. PROBING FOLLOW-UPS (3 probes)
-6. CLOSING EXERCISE (one activity)
-
-Keep it concise and tied to simulation findings."""
+3. WARM-UP QUESTIONS (2)
+4. CORE DISCUSSION QUESTIONS (5-6 based on unresolved tensions)
+5. PROBING FOLLOW-UPS (3)
+6. CLOSING EXERCISE (1 activity)"""
 
     resp = client.chat.completions.create(
         model="gpt-4o",
         messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
-        temperature=0.5,
-        max_tokens=1000,
+        temperature=0.5, max_tokens=1000,
     )
     return resp.choices[0].message.content.strip()
 
 
 def generate_next_steps(client, pitch, insights_text, personas):
-    system = "You are a consumer research strategist. Recommend follow-up research populations."
-
+    system = "You are a consumer research strategist."
     user = f"""PITCH: {pitch}
-
-FINDINGS:
-{insights_text}
-
-CURRENT PANEL:
-{json.dumps([{"name": p["name"], "age_group": p["age_group"], "income_bracket": p["income_bracket"]} for p in personas], indent=2)}
+FINDINGS: {insights_text}
+CURRENT PANEL: {json.dumps([{"name": p["name"], "age_group": p["age_group"]} for p in personas])}
 
 Recommend exactly 3 follow-up research populations:
 
-PANEL_1_TITLE: [short name]
+PANEL_1_TITLE: [name]
 PANEL_1_RATIONALE: [1-2 sentences]
-PANEL_1_PROFILE: [age range, location, income, key trait]
+PANEL_1_PROFILE: [age, location, income, trait]
 
-PANEL_2_TITLE: [short name]
+PANEL_2_TITLE: [name]
 PANEL_2_RATIONALE: [1-2 sentences]
-PANEL_2_PROFILE: [age range, location, income, key trait]
+PANEL_2_PROFILE: [age, location, income, trait]
 
-PANEL_3_TITLE: [short name]
+PANEL_3_TITLE: [name]
 PANEL_3_RATIONALE: [1-2 sentences]
-PANEL_3_PROFILE: [age range, location, income, key trait]"""
+PANEL_3_PROFILE: [age, location, income, trait]"""
 
     resp = client.chat.completions.create(
         model="gpt-4o",
         messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
-        temperature=0.6,
-        max_tokens=700,
+        temperature=0.6, max_tokens=700,
     )
     return resp.choices[0].message.content.strip()
 
 
 def generate_followup(client, pitch, original_transcript, personas, phase2_history, user_question):
-    persona_block = "\n".join([
-        f"- {p['icon']} {p['name']} ({p['age_group']}): {p['communication_style']}"
-        for p in personas
-    ])
+    persona_block = "\n".join([f"- {p['icon']} {p['name']} ({p['age_group']}): {p['communication_style']}" for p in personas])
     history_block = "\n".join([
         f"{'Moderator' if m['role'] == 'user' else m.get('speaker','Panel')}: {m['content']}"
         for m in phase2_history[-10:]
     ])
-
-    system = f"""You are simulating a follow-up with focus group participants who completed a prior session.
+    system = f"""You are simulating a follow-up Q&A with focus group participants.
 
 ORIGINAL PITCH: {pitch}
-
 PARTICIPANTS:
 {persona_block}
 
 RULES:
 1. Select 2-3 most relevant participants to respond.
-2. If question names a specific participant, ONLY that participant responds.
-3. Each response is 2-3 sentences — conversational.
-4. Participants REMEMBER the original discussion and may reference it.
-5. Maintain each persona's voice, values, and rating style.
-6. Participants may agree or disagree with each other.
+2. If question names a specific participant, ONLY that person responds.
+3. 2-3 sentences each. Conversational.
+4. Participants may reference what was said in the original session.
+5. Maintain each persona's voice and values.
 
 FORMAT:
 [NAME]: [response]
 
-Only output participant responses. No narration."""
+Only participant responses. No narration."""
 
     resp = client.chat.completions.create(
         model="gpt-4o",
         messages=[
             {"role": "system", "content": system},
-            {"role": "user", "content": f"ORIGINAL TRANSCRIPT:\n{original_transcript}\n\nPHASE 2 HISTORY:\n{history_block}\n\nMODERATOR: {user_question}"},
+            {"role": "user", "content": f"ORIGINAL TRANSCRIPT:\n{original_transcript}\n\nCONVERSATION SO FAR:\n{history_block}\n\nMODERATOR: {user_question}"},
         ],
-        temperature=0.8,
-        max_tokens=600,
+        temperature=0.8, max_tokens=600,
     )
     return resp.choices[0].message.content.strip()
 
@@ -639,30 +770,27 @@ def parse_insights(text):
     result["sentiment"] = extract(r"SENTIMENT_BREAKDOWN:\s*(.+?)(?:\n|$)")
     result["verdict"] = extract(r"OVERALL_VERDICT:\s*(.+?)(?:\n[A-Z_]+:|$)")
 
-    pain_block = extract(r"TOP_PAIN_POINTS:\s*((?:- .+\n?)+)", "")
-    result["pain_points"] = [l.lstrip("- ").strip() for l in pain_block.strip().split("\n") if l.strip().startswith("-")]
-
-    strength_block = extract(r"TOP_STRENGTHS:\s*((?:- .+\n?)+)", "")
-    result["strengths"] = [l.lstrip("- ").strip() for l in strength_block.strip().split("\n") if l.strip().startswith("-")]
-
-    obj_block = extract(r"KEY_OBJECTIONS:\s*((?:- .+\n?)+)", "")
-    result["objections"] = [l.lstrip("- ").strip() for l in obj_block.strip().split("\n") if l.strip().startswith("-")]
+    for key, pattern in [
+        ("pain_points", r"TOP_PAIN_POINTS:\s*((?:- .+\n?)+)"),
+        ("strengths",   r"TOP_STRENGTHS:\s*((?:- .+\n?)+)"),
+        ("objections",  r"KEY_OBJECTIONS:\s*((?:- .+\n?)+)"),
+    ]:
+        block = extract(pattern, "")
+        result[key] = [l.lstrip("- ").strip() for l in block.strip().split("\n") if l.strip().startswith("-")]
 
     priority_block = extract(r"PRIORITY_SCORES:\s*((?:- .+\n?)+)", "")
-    priority_scores = {}
+    result["priority_scores"] = {}
     for line in priority_block.strip().split("\n"):
         mm = re.match(r"-\s*(.+?):\s*(\d+)", line)
         if mm:
-            priority_scores[mm.group(1).strip()] = int(mm.group(2))
-    result["priority_scores"] = priority_scores
+            result["priority_scores"][mm.group(1).strip()] = int(mm.group(2))
 
     honesty_block = extract(r"PERSONA_HONESTY:\s*((?:- .+\n?)+)", "")
-    honesty_scores = {}
+    result["honesty_scores"] = {}
     for line in honesty_block.strip().split("\n"):
         mm = re.match(r"-\s*(.+?):\s*(\d+)", line)
         if mm:
-            honesty_scores[mm.group(1).strip()] = int(mm.group(2))
-    result["honesty_scores"] = honesty_scores
+            result["honesty_scores"][mm.group(1).strip()] = int(mm.group(2))
 
     return result
 
@@ -674,11 +802,11 @@ def parse_authenticity(text):
         m = re.search(pattern, text, re.IGNORECASE | re.DOTALL)
         return m.group(1).strip() if m else default
 
-    result["score"] = extract(r"AUTHENTICITY_SCORE:\s*(\d+)")
-    result["groupthink"] = extract(r"GROUPTHINK_DETECTED:\s*(.+?)(?:\n|$)")
+    result["score"]            = extract(r"AUTHENTICITY_SCORE:\s*(\d+)")
+    result["groupthink"]       = extract(r"GROUPTHINK_DETECTED:\s*(.+?)(?:\n|$)")
     result["groupthink_notes"] = extract(r"GROUPTHINK_NOTES:\s*(.+?)(?:\n|$)")
-    result["sycophancy_risk"] = extract(r"CORPORATE_SYCOPHANCY_RISK:\s*(.+?)(?:\n|$)")
-    result["verdict"] = extract(r"FILTER_VERDICT:\s*(.+?)(?:\n[A-Z_]+:|$)")
+    result["sycophancy_risk"]  = extract(r"CORPORATE_SYCOPHANCY_RISK:\s*(.+?)(?:\n|$)")
+    result["verdict"]          = extract(r"FILTER_VERDICT:\s*(.+?)(?:\n[A-Z_]+:|$)")
 
     outlier_block = extract(r"OUTLIER_VOICES:\s*((?:- .+\n?)+)", "")
     result["outliers"] = [l.lstrip("- ").strip() for l in outlier_block.strip().split("\n") if l.strip().startswith("-")]
@@ -689,14 +817,14 @@ def parse_authenticity(text):
 def parse_next_steps(text):
     steps = []
     for i in range(1, 4):
-        title_m = re.search(rf"PANEL_{i}_TITLE:\s*(.+?)(?:\n|$)", text, re.IGNORECASE)
-        rationale_m = re.search(rf"PANEL_{i}_RATIONALE:\s*(.+?)(?:\n|$)", text, re.IGNORECASE)
-        profile_m = re.search(rf"PANEL_{i}_PROFILE:\s*(.+?)(?:\n|$)", text, re.IGNORECASE)
-        if title_m:
+        tm = re.search(rf"PANEL_{i}_TITLE:\s*(.+?)(?:\n|$)", text, re.IGNORECASE)
+        rm = re.search(rf"PANEL_{i}_RATIONALE:\s*(.+?)(?:\n|$)", text, re.IGNORECASE)
+        pm = re.search(rf"PANEL_{i}_PROFILE:\s*(.+?)(?:\n|$)", text, re.IGNORECASE)
+        if tm:
             steps.append({
-                "title": title_m.group(1).strip(),
-                "rationale": rationale_m.group(1).strip() if rationale_m else "",
-                "profile": profile_m.group(1).strip() if profile_m else "",
+                "title": tm.group(1).strip(),
+                "rationale": rm.group(1).strip() if rm else "",
+                "profile": pm.group(1).strip() if pm else "",
             })
     return steps
 
@@ -704,190 +832,101 @@ def parse_next_steps(text):
 # ─────────────────────────────────────────────
 # RENDER HELPERS
 # ─────────────────────────────────────────────
-def progress_bar_html(value, warn_threshold=50, danger_threshold=30):
+def bar_html(value, color_class="ga-bar-fill"):
     pct = min(max(int(value), 0), 100)
-    if pct <= danger_threshold:
-        cls = "progress-fill-danger"
-    elif pct <= warn_threshold:
-        cls = "progress-fill-warn"
-    else:
-        cls = "progress-fill"
-    return f'<div class="progress-container"><div class="{cls}" style="width:{pct}%"></div></div>'
+    if color_class == "auto":
+        if pct >= 60:
+            color_class = "ga-bar-fill-green"
+        elif pct >= 40:
+            color_class = "ga-bar-fill"
+        elif pct >= 25:
+            color_class = "ga-bar-fill-warn"
+        else:
+            color_class = "ga-bar-fill-danger"
+    return f'<div class="ga-bar-track"><div class="{color_class}" style="width:{pct}%"></div></div>'
 
 
-def honesty_badge_html(score):
+def honesty_chip(score):
     if score >= 75:
-        return f'<span class="honesty-badge honesty-high">Candor {score}</span>'
+        return f'<span class="honesty-chip hc-high">{score}</span>'
     elif score >= 50:
-        return f'<span class="honesty-badge honesty-mid">Candor {score}</span>'
+        return f'<span class="honesty-chip hc-mid">{score}</span>'
     else:
-        return f'<span class="honesty-badge honesty-low">Candor {score}</span>'
+        return f'<span class="honesty-chip hc-low">{score}</span>'
 
 
-def render_summary_bar(insights, auth):
-    adoption = insights.get("adoption_score", "—")
-    auth_score = auth.get("score", "—")
-    verdict = insights.get("verdict", "")
-
+def verdict_badge(adoption):
     try:
         a = int(adoption)
-        if a >= 75:
-            badge = "🟢 Strong Buy Signal"
-        elif a >= 55:
-            badge = "🟡 Conditional Interest"
-        elif a >= 35:
-            badge = "🟠 Skeptical — Needs Work"
-        else:
-            badge = "🔴 Significant Resistance"
     except Exception:
-        badge = "—"
-
-    st.markdown(f"""
-    <div class="summary-bar">
-        <div class="summary-metric">
-            <div class="summary-metric-value">{adoption}</div>
-            <div class="summary-metric-label">Adoption Score</div>
-        </div>
-        <div class="summary-divider"></div>
-        <div class="summary-metric">
-            <div class="summary-metric-value">{auth_score}</div>
-            <div class="summary-metric-label">Authenticity</div>
-        </div>
-        <div class="summary-divider"></div>
-        <div class="summary-badge">{badge}</div>
-        <div class="summary-divider"></div>
-        <div style="flex:1; font-size:0.82rem; color:#7a9bbf; line-height:1.4;">{verdict}</div>
-    </div>
-    """, unsafe_allow_html=True)
+        return '<span class="verdict-badge verdict-yellow">—</span>'
+    if a >= 75:
+        return f'<span class="verdict-badge verdict-green">🟢 Strong Buy Signal</span>'
+    elif a >= 55:
+        return f'<span class="verdict-badge verdict-yellow">🟡 Conditional Interest</span>'
+    elif a >= 35:
+        return f'<span class="verdict-badge verdict-orange">🟠 Skeptical — Needs Work</span>'
+    else:
+        return f'<span class="verdict-badge verdict-red">🔴 Significant Resistance</span>'
 
 
-def render_transcript(transcript_lines, honesty_scores=None):
-    st.markdown('<div class="section-header">Focus Group Transcript</div>', unsafe_allow_html=True)
-    if honesty_scores is None:
-        honesty_scores = {}
+def scorecard_delta(value):
+    try:
+        v = int(value)
+    except Exception:
+        return ""
+    if v >= 70:
+        return f'<div class="ga-scorecard-delta delta-green">▲ Above threshold</div>'
+    elif v >= 45:
+        return f'<div class="ga-scorecard-delta delta-yellow">◆ Borderline</div>'
+    else:
+        return f'<div class="ga-scorecard-delta delta-red">▼ Below threshold</div>'
+
+
+def build_export_txt(pitch, personas, priorities, transcript_lines, insights_text, auth, next_steps, phase2_messages):
+    lines = [
+        "=" * 60,
+        "SIMGROUPAI — FULL SIMULATION REPORT",
+        "=" * 60,
+        f"\nPITCH:\n{pitch}",
+        f"\nPANEL: {', '.join([p['name'] for p in personas])}",
+        f"\nPRIORITIES: {', '.join(priorities) if priorities else 'None specified'}",
+        "\n" + "=" * 60,
+        "PHASE 1 — TRANSCRIPT",
+        "=" * 60,
+    ]
     for item in transcript_lines:
-        speaker = item["speaker"]
-        message = item["message"]
-        persona = item.get("persona")
-        icon = persona["icon"] if persona else "👤"
-        hs = honesty_scores.get(speaker, None)
-        badge_html = honesty_badge_html(hs) if hs is not None else ""
-        st.markdown(f"""
-        <div class="chat-bubble">
-            <div class="chat-name">{icon} {speaker}{badge_html}</div>
-            {message}
-        </div>
-        """, unsafe_allow_html=True)
+        lines.append(f"\n{item['speaker']}: {item['message']}")
 
+    lines += [
+        "\n\n" + "=" * 60,
+        "PHASE 1 — INSIGHTS",
+        "=" * 60,
+        insights_text,
+        "\n\n" + "=" * 60,
+        "PHASE 1 — AUTHENTICITY FILTER",
+        "=" * 60,
+        f"Score: {auth.get('score')} | Groupthink: {auth.get('groupthink')} | Sycophancy Risk: {auth.get('sycophancy_risk')}",
+        f"Verdict: {auth.get('verdict')}",
+    ]
 
-def render_dashboard(insights, auth, selected_personas):
-    col1, col2 = st.columns(2)
+    if next_steps:
+        lines += ["\n\n" + "=" * 60, "RECOMMENDED NEXT STEPS", "=" * 60]
+        for i, s in enumerate(next_steps, 1):
+            lines.append(f"\n{i}. {s['title']}\n   {s['rationale']}\n   Target: {s['profile']}")
 
-    with col1:
-        st.markdown('<div class="section-header">Sentiment & Adoption</div>', unsafe_allow_html=True)
-        adoption = insights.get("adoption_score", 0)
-        try:
-            adoption_int = int(adoption)
-        except Exception:
-            adoption_int = 0
+    if phase2_messages:
+        lines += ["\n\n" + "=" * 60, "PHASE 2 — FOLLOW-UP CONVERSATION", "=" * 60]
+        for msg in phase2_messages:
+            if msg["role"] == "user":
+                lines.append(f"\nMODERATOR: {msg['content']}")
+            else:
+                for line in msg["content"].strip().split("\n"):
+                    line = line.strip()
+                    if line:
+                        lines.append(f"\n{line}")
 
-        st.markdown(f"""
-        <div class="metric-card">
-            <div class="metric-card-label">Adoption Score</div>
-            <div class="metric-card-value">{adoption_int}<span style="font-size:1rem;color:#7a9bbf">/100</span></div>
-            {progress_bar_html(adoption_int)}
-            <div class="metric-card-sub">{insights.get("sentiment","")}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        auth_score = auth.get("score", 0)
-        try:
-            auth_int = int(auth_score)
-        except Exception:
-            auth_int = 0
-
-        st.markdown(f"""
-        <div class="metric-card">
-            <div class="metric-card-label">Authenticity Score</div>
-            <div class="metric-card-value">{auth_int}<span style="font-size:1rem;color:#7a9bbf">/100</span></div>
-            {progress_bar_html(auth_int)}
-            <div class="metric-card-sub">Groupthink: {auth.get("groupthink","N/A")} · Sycophancy Risk: {auth.get("sycophancy_risk","N/A")}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        priority_scores = insights.get("priority_scores", {})
-        if priority_scores:
-            st.markdown('<div class="section-header">Priority Dimension Scores</div>', unsafe_allow_html=True)
-            for dim, score in priority_scores.items():
-                st.markdown(f"""
-                <div style="margin-bottom:10px;">
-                    <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:#a0b8d0;margin-bottom:3px;">
-                        <span>{dim}</span><span style="color:#4ecdc4;font-weight:600">{score}</span>
-                    </div>
-                    {progress_bar_html(score)}
-                </div>
-                """, unsafe_allow_html=True)
-
-    with col2:
-        st.markdown('<div class="section-header">Key Findings</div>', unsafe_allow_html=True)
-
-        pain_points = insights.get("pain_points", [])
-        if pain_points:
-            st.markdown('<div style="font-size:0.75rem;color:#f77a48;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">⚠ Pain Points</div>', unsafe_allow_html=True)
-            for pt in pain_points:
-                st.markdown(f'<div class="tag">• {pt}</div>', unsafe_allow_html=True)
-            st.markdown("<br>", unsafe_allow_html=True)
-
-        strengths = insights.get("strengths", [])
-        if strengths:
-            st.markdown('<div style="font-size:0.75rem;color:#4ecdc4;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">✓ Strengths</div>', unsafe_allow_html=True)
-            for s in strengths:
-                st.markdown(f'<div class="tag">• {s}</div>', unsafe_allow_html=True)
-            st.markdown("<br>", unsafe_allow_html=True)
-
-        objections = insights.get("objections", [])
-        if objections:
-            st.markdown('<div style="font-size:0.75rem;color:#f7c948;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">✗ Key Objections</div>', unsafe_allow_html=True)
-            for obj in objections:
-                st.markdown(f'<div class="tag">• {obj}</div>', unsafe_allow_html=True)
-            st.markdown("<br>", unsafe_allow_html=True)
-
-        honesty_scores = insights.get("honesty_scores", {})
-        if honesty_scores:
-            st.markdown('<div class="section-header">Persona Honesty Scores</div>', unsafe_allow_html=True)
-            for name, score in honesty_scores.items():
-                p_obj = next((p for p in selected_personas if p["name"] == name), None)
-                icon = p_obj["icon"] if p_obj else "👤"
-                st.markdown(f"""
-                <div style="display:flex;align-items:center;margin-bottom:8px;gap:10px;">
-                    <span style="font-size:1.1rem">{icon}</span>
-                    <div style="flex:1">
-                        <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:#a0b8d0;margin-bottom:2px;">
-                            <span>{name}</span>{honesty_badge_html(score)}
-                        </div>
-                        {progress_bar_html(score)}
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
-
-        if auth.get("groupthink_notes") and auth["groupthink_notes"].lower() not in ("none", "n/a"):
-            st.markdown(f"""
-            <div style="margin-top:16px;padding:12px;background:#1a1a0a;border:1px solid #3a3a1a;border-radius:8px;font-size:0.8rem;color:#d0c060;">
-            ⚠ <strong>Groupthink Note:</strong> {auth["groupthink_notes"]}
-            </div>
-            """, unsafe_allow_html=True)
-
-
-def render_next_steps(next_steps):
-    st.markdown('<div class="section-header">Recommended Next Research Steps</div>', unsafe_allow_html=True)
-    for step in next_steps:
-        st.markdown(f"""
-        <div class="next-step-card">
-            <div class="next-step-title">→ {step["title"]}</div>
-            <div class="next-step-body">{step["rationale"]}</div>
-            <div style="margin-top:6px;font-size:0.75rem;color:#5a7a9a;"><em>Target: {step["profile"]}</em></div>
-        </div>
-        """, unsafe_allow_html=True)
+    return "\n".join(lines)
 
 
 # ─────────────────────────────────────────────
@@ -898,19 +937,20 @@ def render_sidebar(all_personas):
         st.markdown("### 🧠 SimGroupAI")
         st.markdown("---")
 
-        st.markdown("**API Configuration**")
+        st.markdown("**API Key**")
         key_input = st.text_input(
             "OpenAI API Key",
             type="password",
             value=st.session_state.api_key,
             placeholder="sk-...",
+            label_visibility="collapsed",
         )
         if key_input:
             st.session_state.api_key = key_input
 
         st.markdown("---")
+        st.markdown("**Panel**")
 
-        st.markdown("**Panel Selection**")
         panel_mode = st.radio(
             "Panel type",
             ["Default Library", "Custom AI Panel"],
@@ -922,81 +962,64 @@ def render_sidebar(all_personas):
         selected_personas = []
 
         if st.session_state.panel_mode == "library":
-            st.markdown("**Select Personas (2–6)**")
             for p in all_personas:
-                checked = st.checkbox(
-                    f"{p['icon']} {p['name']} — {p['age_group']}",
-                    value=True,
-                    key=f"persona_{p['name']}",
-                )
-                if checked:
+                if st.checkbox(f"{p['icon']} {p['name']} · {p['age_group']}", value=True, key=f"persona_{p['name']}"):
                     selected_personas.append(p)
 
             if len(selected_personas) >= 2:
-                with st.expander("💾 Save This Panel"):
-                    panel_name = st.text_input("Panel name", placeholder="e.g. Skeptics Group", key="save_panel_name")
-                    if st.button("Save Panel") and panel_name:
-                        st.session_state.saved_panels[panel_name] = [p for p in selected_personas]
-                        st.success(f"Saved: {panel_name}")
+                with st.expander("💾 Save this panel"):
+                    pname = st.text_input("Name", placeholder="e.g. Skeptics", key="save_pname")
+                    if st.button("Save") and pname:
+                        st.session_state.saved_panels[pname] = list(selected_personas)
+                        st.success(f"Saved: {pname}")
 
             if st.session_state.saved_panels:
-                with st.expander("📂 Load Saved Panel"):
-                    saved_name = st.selectbox("Select saved panel", list(st.session_state.saved_panels.keys()))
-                    if st.button("Load Panel"):
-                        st.session_state.custom_panel = st.session_state.saved_panels[saved_name]
+                with st.expander("📂 Load saved panel"):
+                    sname = st.selectbox("Panel", list(st.session_state.saved_panels.keys()))
+                    if st.button("Load"):
+                        st.session_state.custom_panel = st.session_state.saved_panels[sname]
                         st.session_state.panel_mode = "custom"
                         st.rerun()
 
         else:
             if st.session_state.custom_panel:
-                st.markdown("**Custom Panel Loaded:**")
                 for p in st.session_state.custom_panel:
-                    st.markdown(f"{p['icon']} **{p['name']}** — {p['age_group']}")
+                    st.markdown(f"{p['icon']} **{p['name']}** · {p['age_group']}")
                 selected_personas = st.session_state.custom_panel
-                if st.button("Clear Custom Panel"):
+                if st.button("✕ Clear panel"):
                     st.session_state.custom_panel = None
                     st.session_state.panel_mode = "library"
                     st.rerun()
             else:
-                st.markdown("**Describe your target audience:**")
                 audience_desc = st.text_area(
-                    "Target audience",
-                    placeholder="e.g. Tech-savvy parents in their 30s-40s, suburban, mid-to-high income, interested in smart home products",
-                    height=100,
+                    "Describe target audience",
+                    placeholder="e.g. Health-conscious millennials in urban areas...",
+                    height=90,
                     label_visibility="collapsed",
                     key="audience_desc",
                 )
-                if st.button("⚡ Generate Panel with AI"):
+                if st.button("⚡ Generate Panel"):
                     client = get_client()
                     if not client:
-                        st.error("Please enter your API key first.")
+                        st.error("Enter API key first.")
                     elif not audience_desc.strip():
-                        st.warning("Describe your target audience first.")
+                        st.warning("Describe your audience.")
                     else:
-                        with st.spinner("Generating custom panel..."):
+                        with st.spinner("Building panel..."):
                             try:
-                                personas = generate_custom_panel(client, audience_desc)
-                                st.session_state.custom_panel = personas
+                                ps = generate_custom_panel(client, audience_desc)
+                                st.session_state.custom_panel = ps
                                 st.rerun()
                             except Exception as e:
                                 st.error(f"Error: {e}")
 
         st.markdown("---")
-
-        st.markdown("**Evaluation Priorities**")
-        st.caption("Select what matters most for this product:")
-        selected_priorities = []
-        for p in PRIORITIES:
-            if st.checkbox(p, value=False, key=f"prio_{p}"):
-                selected_priorities.append(p)
-
-        custom_priority = st.text_input(
-            "Add custom priority",
-            placeholder="e.g. Gamification",
-            key="custom_priority_input",
-        )
-        if custom_priority.strip():
-            selected_priorities.append(custom_priority.strip())
+        st.markdown("**Priorities**")
+        st.caption("What matters most for this product:")
+        selected_priorities = [p for p in PRIORITIES if st.checkbox(p, value=False, key=f"prio_{p}")]
+        custom_p = st.text_input("Custom priority", placeholder="e.g. Gamification", key="custom_prio")
+        if custom_p.strip():
+            selected_priorities.append(custom_p.strip())
 
         return selected_personas, selected_priorities
 
@@ -1008,170 +1031,299 @@ def main():
     init_session_state()
     inject_css()
 
+    # Top nav bar
     st.markdown("""
-    <div class="simgroup-header">
-        <div class="simgroup-logo">🧠 SimGroupAI</div>
-        <div class="simgroup-tagline">Autonomous Consumer Intelligence · Silicon Population Research</div>
+    <div class="ga-topbar">
+        <div class="ga-logo">
+            <span class="ga-logo-dot"></span>SimGroupAI
+        </div>
+        <div class="ga-property">Consumer Intelligence Platform</div>
     </div>
     """, unsafe_allow_html=True)
 
     all_personas = load_personas()
     selected_personas, selected_priorities = render_sidebar(all_personas)
 
-    st.markdown('<div class="section-header">Product or Service Pitch</div>', unsafe_allow_html=True)
+    # Pitch input
     pitch = st.text_area(
-        "Pitch",
-        placeholder='Describe your product or service. e.g. "WealthMind is a personal finance AI that analyzes spending and builds a custom savings plan — no spreadsheets required."',
-        height=120,
-        label_visibility="collapsed",
+        "Product or Service Pitch",
+        placeholder='Describe your product or service concisely. e.g. "WealthMind is a personal finance AI that builds custom savings plans — no spreadsheets required."',
+        height=100,
     )
 
-    run_col, info_col = st.columns([1, 4])
-    with run_col:
-        run_btn = st.button("▶ Run Simulation", use_container_width=True)
-    with info_col:
+    col_btn, col_info = st.columns([1, 5])
+    with col_btn:
+        run_btn = st.button("▶  Run Simulation", use_container_width=True)
+    with col_info:
         if selected_personas:
-            st.caption(f"Panel: {len(selected_personas)} participants · Priorities: {len(selected_priorities)} selected")
+            st.caption(f"{len(selected_personas)} panelists · {len(selected_priorities)} priorities selected")
         else:
-            st.caption("Select at least 2 personas in the sidebar to run a simulation.")
+            st.caption("Select at least 2 personas in the sidebar.")
 
-    # ── Run Simulation ──
+    # ── Run ──
     if run_btn:
         client = get_client()
         if not client:
-            st.error("Please enter your OpenAI API key in the sidebar.")
+            st.error("Enter your OpenAI API key in the sidebar.")
         elif not pitch.strip():
-            st.warning("Please enter a product pitch before running.")
+            st.warning("Enter a pitch first.")
         elif len(selected_personas) < 2:
-            st.warning("Please select at least 2 personas from the sidebar.")
+            st.warning("Select at least 2 personas.")
         else:
             st.session_state.simulation_done = False
             st.session_state.phase2_messages = []
+            st.session_state.active_tab = 0
 
-            progress = st.progress(0, text="Starting simulation...")
-
+            prog = st.progress(0, text="Initializing...")
             try:
-                progress.progress(10, text="🗣 Generating focus group transcript...")
-                raw_transcript = generate_simulation(client, pitch, selected_personas, selected_priorities)
-                transcript_lines = parse_transcript(raw_transcript, selected_personas)
-                st.session_state.transcript_lines = transcript_lines
-                st.session_state.raw_transcript = raw_transcript
+                prog.progress(10, text="🗣  Generating transcript...")
+                raw = generate_simulation(client, pitch, selected_personas, selected_priorities)
+                st.session_state.transcript_lines = parse_transcript(raw, selected_personas)
+                st.session_state.raw_transcript = raw
 
-                progress.progress(35, text="📊 Extracting insights...")
-                insights_text = generate_insights(client, pitch, raw_transcript, selected_personas, selected_priorities)
-                insights = parse_insights(insights_text)
-                st.session_state.insights = insights
-                st.session_state.insights_text = insights_text
+                prog.progress(35, text="📊  Extracting insights...")
+                it = generate_insights(client, pitch, raw, selected_personas, selected_priorities)
+                st.session_state.insights = parse_insights(it)
+                st.session_state.insights_text = it
 
-                progress.progress(60, text="🔍 Running authenticity filter...")
-                auth_text = check_authenticity(client, pitch, raw_transcript)
-                auth = parse_authenticity(auth_text)
-                st.session_state.auth = auth
+                prog.progress(60, text="🔍  Authenticity filter...")
+                at = check_authenticity(client, pitch, raw)
+                st.session_state.auth = parse_authenticity(at)
 
-                progress.progress(75, text="🗺 Generating focus group guide...")
-                focus_guide = generate_focus_guide(client, pitch, raw_transcript, insights_text)
-                st.session_state.focus_guide = focus_guide
+                prog.progress(75, text="🗺  Building focus guide...")
+                st.session_state.focus_guide = generate_focus_guide(client, pitch, raw, it)
 
-                progress.progress(88, text="🔭 Generating next-step recommendations...")
-                next_steps_text = generate_next_steps(client, pitch, insights_text, selected_personas)
-                next_steps = parse_next_steps(next_steps_text)
-                st.session_state.next_steps = next_steps
+                prog.progress(88, text="🔭  Next-step recommendations...")
+                nst = generate_next_steps(client, pitch, it, selected_personas)
+                st.session_state.next_steps = parse_next_steps(nst)
 
-                progress.progress(100, text="✅ Simulation complete.")
-
+                prog.progress(100, text="✅  Done.")
                 st.session_state.simulation_done = True
                 st.session_state.selected_personas = selected_personas
                 st.session_state.pitch = pitch
                 st.session_state.selected_priorities = selected_priorities
 
             except Exception as e:
-                progress.empty()
-                st.error(f"Simulation error: {e}")
+                prog.empty()
+                st.error(f"Error: {e}")
 
     # ── Results ──
     if st.session_state.simulation_done:
-        insights = st.session_state.insights
-        auth = st.session_state.auth
-        personas = st.session_state.selected_personas
-        honesty_scores = insights.get("honesty_scores", {})
+        insights   = st.session_state.insights
+        auth       = st.session_state.auth
+        personas   = st.session_state.selected_personas
+        priorities = st.session_state.selected_priorities
+        honesty    = insights.get("honesty_scores", {})
 
-        render_summary_bar(insights, auth)
+        # ── Scorecard row ──
+        adoption   = insights.get("adoption_score", "—")
+        auth_score = auth.get("score", "—")
+        sentiment  = insights.get("sentiment", "—")
 
-        tab1, tab2 = st.tabs(["📊 Phase 1 — Simulation Results", "💬 Phase 2 — Follow-Up Conversation"])
+        st.markdown(f"""
+        <div class="ga-scorecard-row">
+            <div class="ga-scorecard">
+                <div class="ga-scorecard-label">Adoption Score</div>
+                <div class="ga-scorecard-value">{adoption}<span style="font-size:1rem;color:#5f6368">/100</span></div>
+                {scorecard_delta(adoption)}
+            </div>
+            <div class="ga-scorecard">
+                <div class="ga-scorecard-label">Authenticity Score</div>
+                <div class="ga-scorecard-value">{auth_score}<span style="font-size:1rem;color:#5f6368">/100</span></div>
+                {scorecard_delta(auth_score)}
+            </div>
+            <div class="ga-scorecard">
+                <div class="ga-scorecard-label">Sentiment</div>
+                <div style="font-size:0.88rem;color:#bdc1c6;margin-top:6px;line-height:1.4;">{sentiment}</div>
+            </div>
+            <div class="ga-scorecard" style="flex:2">
+                <div class="ga-scorecard-label">Verdict</div>
+                <div style="margin-top:6px;">{verdict_badge(adoption)}</div>
+                <div style="font-size:0.78rem;color:#9aa0a6;margin-top:6px;line-height:1.4;">{insights.get("verdict","")}</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
+        # ── Tabs ──
+        tab1, tab2 = st.tabs(["📊  Phase 1 — Results", "💬  Phase 2 — Follow-Up"])
+
+        # ════════════════════════════════════
+        # PHASE 1
+        # ════════════════════════════════════
         with tab1:
-            render_dashboard(insights, auth, personas)
-            st.markdown("<br>", unsafe_allow_html=True)
-            render_transcript(st.session_state.transcript_lines, honesty_scores)
-            st.markdown("<br>", unsafe_allow_html=True)
 
-            if st.session_state.next_steps:
-                render_next_steps(st.session_state.next_steps)
-                st.markdown("<br>", unsafe_allow_html=True)
-
-            if st.session_state.focus_guide:
-                with st.expander("📋 Human Focus Group Guide (Export Ready)"):
-                    st.markdown(st.session_state.focus_guide)
-                    st.download_button(
-                        label="⬇ Download Guide (.txt)",
-                        data=st.session_state.focus_guide,
-                        file_name="simgroup_focus_guide.txt",
-                        mime="text/plain",
-                        key="dl_guide",
-                    )
-
-            with st.expander("⬇ Export Full Simulation Results"):
-                export_lines = [
-                    "=" * 60,
-                    "SIMGROUPAI — SIMULATION RESULTS",
-                    "=" * 60,
-                    f"\nPITCH:\n{st.session_state.pitch}",
-                    f"\nPANEL: {', '.join([p['name'] for p in personas])}",
-                    f"\nPRIORITIES: {', '.join(st.session_state.selected_priorities) if st.session_state.selected_priorities else 'None specified'}",
-                    "\n" + "=" * 60,
-                    "TRANSCRIPT",
-                    "=" * 60,
-                ]
-                for item in st.session_state.transcript_lines:
-                    export_lines.append(f"\n{item['speaker']}: {item['message']}")
-                export_lines += [
-                    "\n\n" + "=" * 60,
-                    "INSIGHTS",
-                    "=" * 60,
-                    st.session_state.insights_text,
-                    "\n\n" + "=" * 60,
-                    "AUTHENTICITY FILTER",
-                    "=" * 60,
-                    f"Score: {auth.get('score')}\nGroupthink: {auth.get('groupthink')}\nSycophancy Risk: {auth.get('sycophancy_risk')}\nVerdict: {auth.get('verdict')}",
-                    "\n\n" + "=" * 60,
-                    "NEXT STEPS",
-                    "=" * 60,
-                ]
-                for i, step in enumerate(st.session_state.next_steps, 1):
-                    export_lines.append(f"\n{i}. {step['title']}\n   {step['rationale']}\n   Target: {step['profile']}")
-                export_txt = "\n".join(export_lines)
+            # Export row at top
+            st.markdown('<div class="ga-section-title">Export</div>', unsafe_allow_html=True)
+            exp_col1, exp_col2, _ = st.columns([1, 1, 4])
+            with exp_col1:
                 st.download_button(
-                    label="⬇ Download Full Results (.txt)",
-                    data=export_txt,
-                    file_name="simgroup_results.txt",
+                    "⬇  Full Report (.txt)",
+                    data=build_export_txt(
+                        st.session_state.pitch, personas, priorities,
+                        st.session_state.transcript_lines, st.session_state.insights_text,
+                        auth, st.session_state.next_steps, st.session_state.phase2_messages
+                    ),
+                    file_name="simgroup_report.txt",
                     mime="text/plain",
-                    key="dl_full",
+                    key="dl_full_top",
+                )
+            with exp_col2:
+                st.download_button(
+                    "⬇  Focus Guide (.txt)",
+                    data=st.session_state.focus_guide,
+                    file_name="simgroup_focus_guide.txt",
+                    mime="text/plain",
+                    key="dl_guide_top",
                 )
 
+            # ── Dashboard ──
+            col_left, col_right = st.columns(2)
+
+            with col_left:
+                # Adoption & Authenticity bars
+                st.markdown('<div class="ga-section-title">Scores</div>', unsafe_allow_html=True)
+                for label, val, tip in [
+                    ("Adoption Score", adoption, None),
+                    ("Authenticity Score", auth_score, None),
+                ]:
+                    try:
+                        v = int(val)
+                    except Exception:
+                        v = 0
+                    st.markdown(f"""
+                    <div class="ga-bar-row">
+                        <div class="ga-bar-label-row"><span>{label}</span><span style="color:#8ab4f8;font-weight:500">{v}</span></div>
+                        {bar_html(v, "auto")}
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                # Priority scores
+                priority_scores = insights.get("priority_scores", {})
+                if priority_scores:
+                    st.markdown(
+                        '<div class="ga-section-title">Priority Dimension Scores'
+                        ' <span class="ga-help" title="How strongly the panel reacted to each priority you selected, scored 0–100. Higher = more discussed and validated.">?</span>'
+                        '</div>',
+                        unsafe_allow_html=True
+                    )
+                    for dim, score in priority_scores.items():
+                        st.markdown(f"""
+                        <div class="ga-bar-row">
+                            <div class="ga-bar-label-row"><span>{dim}</span><span style="color:#8ab4f8;font-weight:500">{score}</span></div>
+                            {bar_html(score, "auto")}
+                        </div>
+                        """, unsafe_allow_html=True)
+
+                # Honesty scores directly below priority scores
+                if honesty:
+                    st.markdown('<div class="ga-section-title">Persona Honesty Scores</div>', unsafe_allow_html=True)
+                    for name, score in honesty.items():
+                        p_obj = next((p for p in personas if p["name"] == name), None)
+                        icon = p_obj["icon"] if p_obj else "👤"
+                        st.markdown(f"""
+                        <div class="ga-bar-row">
+                            <div class="ga-bar-label-row">
+                                <span>{icon} {name}</span>
+                                {honesty_chip(score)}
+                            </div>
+                            {bar_html(score, "auto")}
+                        </div>
+                        """, unsafe_allow_html=True)
+
+            with col_right:
+                st.markdown('<div class="ga-section-title">Key Findings</div>', unsafe_allow_html=True)
+
+                pain_points = insights.get("pain_points", [])
+                if pain_points:
+                    st.markdown('<div style="font-size:0.72rem;font-weight:500;color:#9aa0a6;text-transform:uppercase;letter-spacing:0.7px;margin-bottom:6px;">Pain Points</div>', unsafe_allow_html=True)
+                    for pt in pain_points:
+                        st.markdown(f'<div class="ga-finding-row"><div class="ga-finding-dot dot-red"></div><span>{pt}</span></div>', unsafe_allow_html=True)
+
+                strengths = insights.get("strengths", [])
+                if strengths:
+                    st.markdown('<div style="font-size:0.72rem;font-weight:500;color:#9aa0a6;text-transform:uppercase;letter-spacing:0.7px;margin:14px 0 6px;">Strengths</div>', unsafe_allow_html=True)
+                    for s in strengths:
+                        st.markdown(f'<div class="ga-finding-row"><div class="ga-finding-dot dot-green"></div><span>{s}</span></div>', unsafe_allow_html=True)
+
+                objections = insights.get("objections", [])
+                if objections:
+                    st.markdown('<div style="font-size:0.72rem;font-weight:500;color:#9aa0a6;text-transform:uppercase;letter-spacing:0.7px;margin:14px 0 6px;">Key Objections</div>', unsafe_allow_html=True)
+                    for obj in objections:
+                        st.markdown(f'<div class="ga-finding-row"><div class="ga-finding-dot dot-yellow"></div><span>{obj}</span></div>', unsafe_allow_html=True)
+
+                # Authenticity notes
+                gnotes = auth.get("groupthink_notes", "")
+                if gnotes and gnotes.lower() not in ("none", "n/a", ""):
+                    st.markdown(f"""
+                    <div style="margin-top:16px;padding:10px 14px;background:#3a2810;border:1px solid #f57c00;border-radius:6px;font-size:0.8rem;color:#ffb74d;line-height:1.45;">
+                    ⚠ <strong>Groupthink Note:</strong> {gnotes}
+                    </div>
+                    """, unsafe_allow_html=True)
+
+            # ── Next Steps ── (above transcript)
+            if st.session_state.next_steps:
+                st.markdown('<div class="ga-section-title">Recommended Next Research Steps</div>', unsafe_allow_html=True)
+                ns_cols = st.columns(len(st.session_state.next_steps))
+                for i, (col, step) in enumerate(zip(ns_cols, st.session_state.next_steps)):
+                    with col:
+                        st.markdown(f"""
+                        <div class="ns-card">
+                            <div class="ns-title">→ {step["title"]}</div>
+                            <div class="ns-body">{step["rationale"]}</div>
+                            <div class="ns-profile">Target: {step["profile"]}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+
+            # ── Transcript ──
+            st.markdown('<div class="ga-section-title">Focus Group Transcript</div>', unsafe_allow_html=True)
+            for item in st.session_state.transcript_lines:
+                speaker = item["speaker"]
+                message = item["message"]
+                persona = item.get("persona")
+                icon = persona["icon"] if persona else "👤"
+                hs = honesty.get(speaker, None)
+                chip = honesty_chip(hs) if hs is not None else ""
+                st.markdown(f"""
+                <div class="tx-bubble">
+                    <div class="tx-name">{icon} {speaker}{chip}</div>
+                    {message}
+                </div>
+                """, unsafe_allow_html=True)
+
+        # ════════════════════════════════════
+        # PHASE 2
+        # ════════════════════════════════════
         with tab2:
+
+            # Export row at top of Phase 2
+            st.markdown('<div class="ga-section-title">Export</div>', unsafe_allow_html=True)
+            p2_exp_col, _ = st.columns([1, 5])
+            with p2_exp_col:
+                st.download_button(
+                    "⬇  Full Report (.txt)",
+                    data=build_export_txt(
+                        st.session_state.pitch, personas, priorities,
+                        st.session_state.transcript_lines, st.session_state.insights_text,
+                        auth, st.session_state.next_steps, st.session_state.phase2_messages
+                    ),
+                    file_name="simgroup_report_with_followup.txt",
+                    mime="text/plain",
+                    key="dl_full_p2",
+                )
+
             st.markdown("""
-            <div style="padding:14px;background:#0f1e35;border:1px solid #1e3a5f;border-radius:8px;margin-bottom:20px;font-size:0.85rem;color:#7a9bbf;line-height:1.5;">
-            💬 <strong style="color:#4ecdc4;">Phase 2: Follow-Up Conversation</strong><br>
-            Ask follow-up questions directly to the panelists. They remember the full discussion.
-            Address the group or call out a specific participant by name.
+            <div class="p2-info">
+                💬 <strong>Phase 2 — Follow-Up Q&A</strong><br>
+                Ask follow-up questions directly to the panelists. Address the group or call out a specific participant by name.
             </div>
             """, unsafe_allow_html=True)
 
+            # Conversation history
             for msg in st.session_state.phase2_messages:
                 if msg["role"] == "user":
                     st.markdown(f"""
-                    <div class="chat-bubble chat-bubble-user">
-                        <div class="chat-name chat-name-user">🎤 You (Moderator)</div>
+                    <div class="tx-bubble tx-bubble-user">
+                        <div class="tx-name tx-name-user">🎤 You (Moderator)</div>
                         {msg["content"]}
                     </div>
                     """, unsafe_allow_html=True)
@@ -1183,33 +1335,35 @@ def main():
                         mm = re.match(r"^\[?([^\]:\n]+)\]?:\s*(.+)$", line)
                         if mm:
                             speaker = mm.group(1).strip()
-                            text = mm.group(2).strip()
-                            p_obj = next((p for p in personas if p["name"].lower() in speaker.lower()), None)
-                            icon = p_obj["icon"] if p_obj else "👤"
-                            hs = honesty_scores.get(speaker, None)
-                            badge_html = honesty_badge_html(hs) if hs is not None else ""
+                            text    = mm.group(2).strip()
+                            p_obj   = next((p for p in personas if p["name"].lower() in speaker.lower()), None)
+                            icon    = p_obj["icon"] if p_obj else "👤"
+                            hs      = honesty.get(speaker, None)
+                            chip    = honesty_chip(hs) if hs is not None else ""
                             st.markdown(f"""
-                            <div class="chat-bubble">
-                                <div class="chat-name">{icon} {speaker}{badge_html}</div>
+                            <div class="tx-bubble">
+                                <div class="tx-name">{icon} {speaker}{chip}</div>
                                 {text}
                             </div>
                             """, unsafe_allow_html=True)
 
-            with st.form(key="phase2_form", clear_on_submit=True):
-                user_q = st.text_input(
-                    "Ask a follow-up",
-                    placeholder='e.g. "What would it take for you to actually buy this?" or "Robert, what\'s your biggest concern?"',
-                    label_visibility="collapsed",
-                )
-                submitted = st.form_submit_button("Send →")
+            # Input — use regular button (not st.form) to avoid tab reset
+            user_q = st.text_input(
+                "Ask a follow-up",
+                placeholder='e.g. "What would make you actually buy this?" or "Robert, what\'s your biggest concern?"',
+                key="phase2_input",
+                label_visibility="collapsed",
+            )
+            send_btn = st.button("Send →", key="phase2_send")
 
-            if submitted and user_q.strip():
+            if send_btn and user_q.strip():
                 client = get_client()
                 if not client:
                     st.error("API key required.")
                 else:
                     st.session_state.phase2_messages.append({"role": "user", "content": user_q})
-                    with st.spinner("Panelists are responding..."):
+                    st.session_state.active_tab = 1
+                    with st.spinner("Panelists responding..."):
                         try:
                             response = generate_followup(
                                 client,
@@ -1224,16 +1378,17 @@ def main():
                                 "speaker": "panel",
                                 "content": response,
                             })
-                            st.rerun()
                         except Exception as e:
                             st.error(f"Error: {e}")
+                    st.rerun()
 
     else:
+        # Empty state
         st.markdown("""
-        <div style="text-align:center;padding:60px 20px;color:#3a5a7a;">
-            <div style="font-size:3rem;margin-bottom:12px;">🧬</div>
-            <div style="font-size:1.1rem;font-weight:500;color:#4a7a9a;margin-bottom:8px;">No simulation running yet</div>
-            <div style="font-size:0.85rem;color:#2a4a6a;">Enter your pitch above, select personas in the sidebar, and click <strong>Run Simulation</strong></div>
+        <div style="text-align:center;padding:70px 20px;">
+            <div style="font-size:2.5rem;margin-bottom:14px;">🧬</div>
+            <div style="font-size:1rem;font-weight:500;color:#5f6368;margin-bottom:8px;">No simulation running</div>
+            <div style="font-size:0.84rem;color:#3c3c3f;">Enter your pitch above and click <strong style="color:#8ab4f8">Run Simulation</strong></div>
         </div>
         """, unsafe_allow_html=True)
 
