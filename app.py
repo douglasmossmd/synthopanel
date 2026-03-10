@@ -324,8 +324,12 @@ Start immediately. No intro text."""
 def generate_insights(client, pitch, transcript, personas, priorities):
     priority_str = ", ".join(priorities) if priorities else "overall consumer value"
     names = [p["name"] for p in personas]
-    prio_lines = "\n".join([f"- {p}: 74" for p in (priorities if priorities else ["Overall Value"])])
-    honesty_lines = "\n".join([f"- {n}: 74" for n in names])
+    # Use varied example scores so LLM understands these must differ per entry
+    prio_example = [74, 61, 88, 55, 79]
+    prio_list = priorities if priorities else ["Overall Value"]
+    prio_lines = "\n".join([f"- {p}: {prio_example[i % len(prio_example)]}" for i, p in enumerate(prio_list)])
+    honesty_example = [82, 71, 65, 88, 74, 59, 91, 77]
+    honesty_lines = "\n".join([f"- {n}: {honesty_example[i % len(honesty_example)]}" for i, n in enumerate(names)])
     user = f"""PITCH: {pitch}
 TRANSCRIPT:
 {transcript}
@@ -352,11 +356,12 @@ PERSONA_HONESTY:
 {honesty_lines}
 OVERALL_VERDICT: Your 1-2 sentence summary here.
 
-Now return the ACTUAL analysis using real values from the transcript."""
+Now return the ACTUAL analysis using real values from the transcript.
+IMPORTANT: PRIORITY_SCORES and PERSONA_HONESTY scores must each be DIFFERENT numbers reflecting actual variation — never return the same score for every entry."""
     resp = client.chat.completions.create(
         model="gpt-4o",
         messages=[
-            {"role": "system", "content": "You are a senior consumer insights analyst. Return structured data in the EXACT format shown. No extra commentary, no brackets around numbers."},
+            {"role": "system", "content": "You are a senior consumer insights analyst. Return structured data in the EXACT format shown. No extra commentary, no brackets around numbers. Every persona honesty score and every priority dimension score must be a distinct number reflecting real differences — never repeat the same score for all entries."},
             {"role": "user", "content": user}
         ],
         temperature=0.3, max_tokens=1200,
