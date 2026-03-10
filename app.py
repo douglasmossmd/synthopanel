@@ -797,6 +797,22 @@ def build_export_docx(pitch, personas, priorities, transcript_lines, insights_te
 # ─────────────────────────────────────────────
 # SIDEBAR
 # ─────────────────────────────────────────────
+def render_persona_card_sidebar(p):
+    """Renders expanded persona profile content inside a sidebar expander."""
+    vals = ", ".join(p.get("core_values", []))
+    st.markdown(
+        f"""<div style="font-size:0.78rem; line-height:1.75; color:#bdc1c6; padding: 4px 0;">
+<b style="color:#e8eaed;">📍 Location:</b> {p.get('location_type', '—')}<br>
+<b style="color:#e8eaed;">💰 Income:</b> {p.get('income_bracket', '—')}<br>
+<b style="color:#e8eaed;">⭐ Values:</b> {vals}<br>
+<b style="color:#e8eaed;">🎭 Rating Style:</b> {p.get('rating_style', 'Balanced')}<br>
+<b style="color:#e8eaed;">🗂 Background:</b> {p.get('background', '—')}<br>
+<b style="color:#e8eaed;">💬 Communication:</b> {p.get('communication_style', '—')}
+</div>""",
+        unsafe_allow_html=True,
+    )
+
+
 def render_sidebar(all_personas):
     with st.sidebar:
         st.markdown("### 🧠 SimGroupAI")
@@ -819,8 +835,11 @@ def render_sidebar(all_personas):
 
         if st.session_state.panel_mode == "library":
             for p in all_personas:
-                if st.checkbox(f"{p['icon']} {p['name']} · {p['age_group']}", value=True, key=f"persona_{p['name']}"):
+                checked = st.checkbox(f"{p['icon']} {p['name']} · {p['age_group']}", value=True, key=f"persona_{p['name']}")
+                if checked:
                     selected_personas.append(p)
+                with st.expander(f"  ↳ {p['name']} profile", expanded=False):
+                    render_persona_card_sidebar(p)
 
             if len(selected_personas) >= 2:
                 with st.expander("💾 Save this panel"):
@@ -840,6 +859,8 @@ def render_sidebar(all_personas):
             if st.session_state.custom_panel:
                 for p in st.session_state.custom_panel:
                     st.markdown(f"{p['icon']} **{p['name']}** · {p['age_group']}")
+                    with st.expander(f"  ↳ {p['name']} profile", expanded=False):
+                        render_persona_card_sidebar(p)
                 selected_personas = st.session_state.custom_panel
                 if st.button("✕ Clear panel"):
                     st.session_state.custom_panel = None
@@ -1031,6 +1052,25 @@ def main():
                                     file_name="simgroup_focus_guide.docx",
                                     mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                                     key="dl_guide")
+
+            # Meet the Panel
+            st.markdown('<div class="ga-section-title">Meet the Panel</div>', unsafe_allow_html=True)
+            panel_cols = st.columns(len(personas))
+            for idx, p in enumerate(personas):
+                with panel_cols[idx]:
+                    vals_short = " · ".join(p.get("core_values", [])[:2])
+                    st.markdown(
+                        f"""<div style="background:#35363a; border:1px solid #3c3c3f; border-radius:8px;
+                        padding:10px 12px; text-align:center; margin-bottom:4px;">
+                        <div style="font-size:1.6rem;">{p.get('icon','👤')}</div>
+                        <div style="font-size:0.8rem; font-weight:600; color:#e8eaed; margin:3px 0;">{p['name']}</div>
+                        <div style="font-size:0.68rem; color:#9aa0a6;">{p.get('age_group','')}</div>
+                        <div style="font-size:0.68rem; color:#9aa0a6; margin-top:2px;">{p.get('income_bracket','')}</div>
+                        </div>""",
+                        unsafe_allow_html=True,
+                    )
+                    with st.expander("Profile", expanded=False):
+                        render_persona_card_sidebar(p)
 
             # Dashboard
             col_left, col_right = st.columns(2)
