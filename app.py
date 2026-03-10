@@ -470,8 +470,11 @@ def inject_css():
     /* ── Divider ── */
     hr { border-color: #3c3c3f !important; }
 
-    /* ── Hide Streamlit chrome ── */
-    #MainMenu, footer, header { visibility: hidden; }
+    /* ── Hide Streamlit chrome (keep sidebar toggle visible) ── */
+    #MainMenu { visibility: hidden; }
+    footer { visibility: hidden; }
+    header { visibility: hidden; }
+    [data-testid="collapsedControl"] { visibility: visible !important; }
 
     /* ── Scrollbar ── */
     ::-webkit-scrollbar { width: 6px; }
